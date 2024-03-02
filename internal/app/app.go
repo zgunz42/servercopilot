@@ -7,6 +7,7 @@ import (
 	"github.com/zgunz42/servercopilot/internal/app/appcontext"
 	"github.com/zgunz42/servercopilot/internal/controller"
 	"github.com/zgunz42/servercopilot/internal/server"
+	"github.com/zgunz42/servercopilot/internal/stream"
 	"github.com/zgunz42/servercopilot/internal/x/logger"
 	"github.com/zgunz42/servercopilot/internal/x/logger/fxlogger"
 )
@@ -25,8 +26,11 @@ func New(ctx appcontext.Ctx, additionalOpts ...fx.Option) *fx.App {
 		fx.WithLogger(fxlogger.Logger),
 		fx.Supply(conf),
 		controller.Module(),
+		stream.Module(),
 		server.Module(),
 	}
 
-	return fx.New(append(baseOpts, additionalOpts...)...)
+	app := fx.New(append(baseOpts, additionalOpts...)...)
+
+	return app
 }

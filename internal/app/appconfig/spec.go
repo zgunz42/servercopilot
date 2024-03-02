@@ -14,6 +14,8 @@ type ConfigSpec struct {
 
 	// LogLevel is the log level. Valid values are: trace, debug, info, warn, error, fatal, panic.
 	LogLevel ConfigLogLevel `split_words:"true" required:"true" default:"info"`
+
+	// MaxMqttAttemptCount int `split_words:"true" required:"true" default:"3"`
 }
 
 type Config struct {

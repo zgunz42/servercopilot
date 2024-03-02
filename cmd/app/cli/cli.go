@@ -10,5 +10,8 @@ import (
 )
 
 func Start(module fx.Option) {
-	app.New(appcontext.Declare(appcontext.EnvCLI), module).Start(context.Background())
+	err := app.New(appcontext.Declare(appcontext.EnvCLI), module).Start(context.Background())
+	if err != nil {
+		panic(err)
+	}
 }

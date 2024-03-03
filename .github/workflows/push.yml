@@ -103,7 +103,7 @@ jobs:
           kustomize_install: true
           kustomize_build_dir: './kubernetes-manifests/overlay/production'
           kustomize_comment: false
-          kustomize_output_file: "servercopilot/rendered.yaml"
+          kustomize_output_file: "./kubernetes-manifests/overlay/production/rendered.yaml"
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
       - name: Upload to server
         uses: zgunz42/cloudflared-scp-action@v1.1.1
@@ -133,9 +133,9 @@ jobs:
         with:
           kustomize_version: '5.3.0'
           kustomize_install: true
-          kustomize_build_dir: './kubernetes-manifests/overlay/stagging'
+          kustomize_build_dir: './kubernetes-manifests/overlay/staging'
           kustomize_comment: false
-          kustomize_output_file: "servercopilot/rendered.yaml"
+          kustomize_output_file: "./kubernetes-manifests/overlay/staging/rendered.yaml"
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
       - name: Upload to server
         uses: zgunz42/cloudflared-scp-action@v1.1.1

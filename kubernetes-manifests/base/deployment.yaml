@@ -21,17 +21,17 @@ spec:
             - containerPort: 3000
           env:
             - name: MQTT_BROKER_URL
-              valuefrom:
+              valueFrom:
                 configMapKeyRef:
                   name: servercopilot-base-config
                   key: MQTT_BROKER_URL
             - name: MQTT_USERNAME
-              valuefrom:
+              valueFrom:
                 configMapKeyRef:
                   name: servercopilot-base-config
                   key: MQTT_USERNAME
             - name: MQTT_PASSWORD
-              valuefrom:
+              valueFrom:
                 configMapKeyRef:
                   name: servercopilot-base-config
                   key: MQTT_PASSWORD

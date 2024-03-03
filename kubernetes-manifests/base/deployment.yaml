@@ -16,7 +16,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: kangmicin/servercopilot:0.0.27
+          image: kangmicin/servercopilot:0.0.28
           ports:
             - containerPort: 3000
               name: app-port

@@ -1,4 +1,4 @@
-name: golang-pipeline
+name: Push and Deploy
 on: 
   push:
     branches: [main, staging]

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servercopilot
+  labels:
+    app.kubernetes.io/name: servercopilot
+spec:
+  selector:
+    matchLabels:
+      app: servercopilot
+  template:
+    metadata:
+      labels:
+        app: servercopilot
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: server
+          image: kangmicin/servercopilot:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: MQTT_BROKER_URL
+              valuefrom:
+                configMapKeyRef:
+                  name: servercopilot-base-config
+                  key: MQTT_BROKER_URL
+            - name: MQTT_USERNAME
+              valuefrom:
+                configMapKeyRef:
+                  name: servercopilot-base-config
+                  key: MQTT_USERNAME
+            - name: MQTT_PASSWORD
+              valuefrom:
+                configMapKeyRef:
+                  name: servercopilot-base-config
+                  key: MQTT_PASSWORD
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi

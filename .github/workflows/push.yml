@@ -112,7 +112,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           private_key: ${{ secrets.SSH_PRIVKEY }}
           port: ${{ secrets.PORT }}
-          from: servercopilot/rendered.yaml
+          from: ./kubernetes-manifests/overlay/production/rendered.yaml
           to: /home/adi/server/production/servercopilot.yaml
   deploy-staging:
     runs-on: ubuntu-latest
@@ -144,5 +144,5 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           private_key: ${{ secrets.SSH_PRIVKEY }}
           port: ${{ secrets.PORT }}
-          from: servercopilot/rendered.yaml
+          from: ./kubernetes-manifests/overlay/staging/rendered.yaml
           to: /home/adi/server/staging/servercopilot.yaml

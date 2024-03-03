@@ -30,4 +30,4 @@ COPY --from=builder /app/app /app/app
 EXPOSE 8080
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD [ "/app/app" ]
+CMD [ "/app/app", "start" ]

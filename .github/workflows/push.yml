@@ -93,8 +93,8 @@ jobs:
         run: |
           echo "VERSION=${GITHUB_REF#$"refs/tags/v"}" > ./kubernetes-manifests/overlay/production/.env
           echo "MQTT_BROKER_URL=mosquitto.mosquitto:1883" >> ./kubernetes-manifests/overlay/production/.env
-          echo "MQTT_USERNAME=${secrets.MQTT_USERNAME}" >> ./kubernetes-manifests/overlay/production/.env
-          echo "MQTT_PASSWORD=${secrets.MQTT_PASSWORD}" >> ./kubernetes-manifests/overlay/production/.env
+          echo "MQTT_USERNAME=${{ secrets.MQTT_USERNAME }}" >> ./kubernetes-manifests/overlay/production/.env
+          echo "MQTT_PASSWORD=${{ secrets.MQTT_PASSWORD }}" >> ./kubernetes-manifests/overlay/production/.env
       - name: 'Kustomize Build'
         id: kustomize
         uses: karancode/kustomize-github-action@master
@@ -126,8 +126,8 @@ jobs:
         run: |
           echo "VERSION=${GITHUB_REF#$"refs/tags/v"}" > ./kubernetes-manifests/overlay/staging/.env
           echo "MQTT_BROKER_URL=mosquitto.mosquitto:1883" >> ./kubernetes-manifests/overlay/staging/.env
-          echo "MQTT_USERNAME=${secrets.MQTT_USERNAME}" >> ./kubernetes-manifests/overlay/staging/.env
-          echo "MQTT_PASSWORD=${secrets.MQTT_PASSWORD}" >> ./kubernetes-manifests/overlay/staging/.env
+          echo "MQTT_USERNAME=${{ secrets.MQTT_USERNAME }}" >> ./kubernetes-manifests/overlay/staging/.env
+          echo "MQTT_PASSWORD=${{ secrets.MQTT_PASSWORD }}" >> ./kubernetes-manifests/overlay/staging/.env
       - name: 'Kustomize Build'
         id: kustomize
         uses: karancode/kustomize-github-action@master

@@ -19,6 +19,7 @@ spec:
           image: kangmicin/servercopilot:0.0.27
           ports:
             - containerPort: 3000
+              name: app-port
           env:
             - name: MQTT_BROKER_URL
               valueFrom:

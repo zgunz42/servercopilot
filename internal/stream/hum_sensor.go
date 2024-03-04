@@ -1,6 +1,7 @@
 package stream
 
 import (
+	"context"
 	"strconv"
 
 	_mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -25,10 +26,6 @@ func CreateHumSens(Client *mqtt.MqttClient) *HumSensor {
 }
 
 func (s *HumSensor) Sub() rxgo.Observable {
-	if s.Agent == nil {
-
-	}
-
 	err := s.Client.Subscribe("device/humidity", func(client _mqtt.Client, msg _mqtt.Message) {
 		// convert to float64
 		data := msg.Payload()
@@ -53,18 +50,21 @@ func (s *HumSensor) Sub() rxgo.Observable {
 	return s.Agent.obs
 }
 
-func (s HumSensor) GetHum() float64 {
+func (s HumSensor) GetHum(ctx context.Context) float64 {
 	if s.Agent == nil {
 		return 0.0
 	}
 
-	val := s.Agent.obs.Take(5).Observe()
-	avrg := 0.0
-	for va := range val {
-		avrg += va.V.(float64)
-	}
+	val := s.Agent.obs.Take(1).Observe()
 
-	return avrg / 5
+	for {
+		select {
+		case va := <-val:
+			return va.V.(float64)
+		case <-ctx.Done():
+			return 0
+		}
+	}
 }
 
 func (s HumSensor) GetHumObs() rxgo.Observable {

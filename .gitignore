@@ -21,3 +21,6 @@
 go.work
 
 .env
+
+# binary vscode debug
+__*

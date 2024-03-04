@@ -7,6 +7,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/reactivex/rxgo/v2"
 	"github.com/valyala/fasthttp"
 	"github.com/zgunz42/servercopilot/internal/stream"
@@ -45,17 +46,33 @@ func (c *ReportController) GetSensor(ctx *fiber.Ctx) error {
 	_ctx.Response.Header.Set("Access-Control-Allow-Headers", "Cache-Control")
 	_ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
+	_, cancel := obs.Connect(_ctx)
+
+	go func() {
+		log.Debug("cancelling report controller")
+
+		cancel()
+	}()
+
 	_ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
-		for val := range obs.Observe() {
-			data := val.V.(map[string]any)
-			encData, err := json.Marshal(data)
+		for {
+			select {
+			case <-_ctx.Done():
+				log.Debug("finished report controller")
 
-			if err != nil {
-				panic(err)
+				w.Flush()
+				return
+			case val := <-obs.Observe():
+				data := val.V.(map[string]any)
+				encData, err := json.Marshal(data)
+
+				if err != nil {
+					panic(err)
+				}
+
+				fmt.Fprintf(w, "data: %s\n\n", encData)
+				w.Flush()
 			}
-
-			fmt.Fprintf(w, "data: %s\n\n", encData)
-			w.Flush()
 		}
 	}))
 
@@ -64,13 +81,13 @@ func (c *ReportController) GetSensor(ctx *fiber.Ctx) error {
 
 func (c *ReportController) GetHum(ctx *fiber.Ctx) error {
 	return ctx.JSON(map[string]any{
-		"hum": c.HumSensor.GetHum(),
+		"hum": c.HumSensor.GetHum(ctx.Context()),
 	})
 }
 
 func (c *ReportController) GetTemp(ctx *fiber.Ctx) error {
 	return ctx.JSON(map[string]any{
-		"temp": c.TempSensor.GetTemp(),
+		"temp": c.TempSensor.GetTemp(ctx.Context()),
 	})
 }
 

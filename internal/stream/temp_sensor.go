@@ -1,6 +1,7 @@
 package stream
 
 import (
+	"context"
 	"strconv"
 
 	_mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -61,18 +62,22 @@ func (s *TempSensor) Sub() rxgo.Observable {
 	return s.Agent.obs
 }
 
-func (s TempSensor) GetTemp() float64 {
+func (s TempSensor) GetTemp(ctx context.Context) float64 {
 	if s.Agent == nil {
 		return 0.0
 	}
 
-	val := s.Agent.obs.Take(5).Observe()
-	avrg := 0.0
-	for va := range val {
-		avrg += va.V.(float64)
+	val := s.Agent.obs.Take(1).Observe()
+
+	for {
+		select {
+		case va := <-val:
+			return va.V.(float64)
+		case <-ctx.Done():
+			return 0
+		}
 	}
 
-	return avrg / 5
 }
 
 func (s TempSensor) GetTempObs() rxgo.Observable {

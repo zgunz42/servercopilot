@@ -2,13 +2,12 @@ package controller
 
 import (
 	"bufio"
-	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/reactivex/rxgo/v2"
 	"github.com/valyala/fasthttp"
 	"github.com/zgunz42/servercopilot/internal/stream"
 	"go.uber.org/fx"
@@ -22,19 +21,6 @@ type ReportController struct {
 }
 
 func (c *ReportController) GetSensor(ctx *fiber.Ctx) error {
-	humObs := c.HumSensor.GetHumObs().Map(func(ctx context.Context, i interface{}) (interface{}, error) {
-		return map[string]any{
-			"hum": i,
-		}, nil
-	})
-	tempObs := c.TempSensor.GetTempObs().Map(func(ctx context.Context, i interface{}) (interface{}, error) {
-		return map[string]any{
-			"temp": i,
-		}, nil
-	})
-	sensors := []rxgo.Observable{humObs, tempObs}
-	// zip the two observables
-	obs := rxgo.Merge(sensors, rxgo.WithBufferedChannel(2))
 
 	_ctx := ctx.Context()
 
@@ -46,14 +32,6 @@ func (c *ReportController) GetSensor(ctx *fiber.Ctx) error {
 	_ctx.Response.Header.Set("Access-Control-Allow-Headers", "Cache-Control")
 	_ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
-	_, cancel := obs.Connect(_ctx)
-
-	go func() {
-		log.Debug("cancelling report controller")
-
-		cancel()
-	}()
-
 	_ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
 		for {
 			select {
@@ -62,14 +40,41 @@ func (c *ReportController) GetSensor(ctx *fiber.Ctx) error {
 
 				w.Flush()
 				return
-			case val := <-obs.Observe():
-				data := val.V.(map[string]any)
-				encData, err := json.Marshal(data)
+			case val := <-c.HumSensor.GetMsg():
+				res, err := strconv.ParseFloat(string(val.Payload), 64)
+
+				if err != nil {
+					val.Ack()
+					continue
+				}
+
+				encData, err := json.Marshal(map[string]any{
+					"hum": res,
+				})
+
+				if err != nil {
+					panic(err)
+				}
+				val.Ack()
+				fmt.Fprintf(w, "data: %s\n\n", encData)
+				w.Flush()
+			case val := <-c.TempSensor.GetMsg():
+				res, err := strconv.ParseFloat(string(val.Payload), 64)
+
+				if err != nil {
+					val.Ack()
+					continue
+				}
+
+				encData, err := json.Marshal(map[string]any{
+					"temp": res,
+				})
 
 				if err != nil {
 					panic(err)
 				}
 
+				val.Ack()
 				fmt.Fprintf(w, "data: %s\n\n", encData)
 				w.Flush()
 			}

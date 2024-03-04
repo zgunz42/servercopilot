@@ -2,9 +2,12 @@ package stream
 
 import (
 	"context"
-	"strconv"
 
+	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	_mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/reactivex/rxgo/v2"
 	"github.com/zgunz42/servercopilot/internal/server/mqtt"
 )
@@ -12,35 +15,48 @@ import (
 type HumSensor struct {
 	Client *mqtt.MqttClient
 	Agent  *Agent `optional:"true"`
+	pubSub *gochannel.GoChannel
+	msg    <-chan *message.Message
 }
 
-func CreateHumSens(Client *mqtt.MqttClient) *HumSensor {
+func CreateHumSens(Client *mqtt.MqttClient, PubSub *gochannel.GoChannel) *HumSensor {
 	agent := &Agent{}
 	agent.stream = make(chan rxgo.Item)
 	agent.obs = rxgo.FromChannel(agent.stream)
 
+	msg, err := PubSub.Subscribe(context.Background(), "sensor.humidity")
+	if err != nil {
+		panic(err)
+	}
+
 	return &HumSensor{
 		Client: Client,
 		Agent:  agent,
+		msg:    msg,
+		pubSub: PubSub,
 	}
+}
+
+func (s *HumSensor) GetMsg() <-chan *message.Message {
+	return s.msg
 }
 
 func (s *HumSensor) Sub() rxgo.Observable {
 	err := s.Client.Subscribe("device/humidity", func(client _mqtt.Client, msg _mqtt.Message) {
 		// convert to float64
 		data := msg.Payload()
-		dataStr := string(data)
-		temp, err := strconv.ParseFloat(dataStr, 64)
+		// temp, err := strconv.ParseFloat(dataStr, 64)
+		// if err != nil {
+		// 	println(err)
+		// 	return
+		// }
+
+		err := s.pubSub.Publish("sensor.humidity", message.NewMessage(watermill.NewUUID(), message.Payload(data)))
 		if err != nil {
-			println(err)
-			return
+			log.Error(err)
 		}
 
-		select {
-		case s.Agent.stream <- rxgo.Of(temp):
-		default:
-			// do nothing
-		}
+		log.Debug("sensor humidity: ", string(data))
 		msg.Ack()
 	})
 	if err != nil {

@@ -2,9 +2,12 @@ package stream
 
 import (
 	"context"
-	"strconv"
 
+	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	_mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/reactivex/rxgo/v2"
 	"github.com/zgunz42/servercopilot/internal/server/mqtt"
 )
@@ -12,22 +15,33 @@ import (
 type Agent struct {
 	obs    rxgo.Observable
 	stream chan rxgo.Item
+	pubSub *gochannel.GoChannel
+	msg    <-chan *message.Message
 }
 
 // TempSensor is an interface for temperature sensors
 type TempSensor struct {
 	Client *mqtt.MqttClient
 	Agent  *Agent `optional:"true"`
+	pubSub *gochannel.GoChannel
+	msg    <-chan *message.Message
 }
 
-func CreateTempSens(client *mqtt.MqttClient) *TempSensor {
+func CreateTempSens(client *mqtt.MqttClient, PubSub *gochannel.GoChannel) *TempSensor {
 	agent := &Agent{}
 	agent.stream = make(chan rxgo.Item)
 	agent.obs = rxgo.FromChannel(agent.stream)
 
+	msg, err := PubSub.Subscribe(context.Background(), "sensor.temperature")
+	if err != nil {
+		panic(err)
+	}
+
 	return &TempSensor{
 		Client: client,
 		Agent:  agent,
+		msg:    msg,
+		pubSub: PubSub,
 	}
 }
 
@@ -41,18 +55,12 @@ func (s *TempSensor) Sub() rxgo.Observable {
 	err := s.Client.Subscribe("device/temperature", func(client _mqtt.Client, msg _mqtt.Message) {
 		// convert to float64
 		data := msg.Payload()
-		dataStr := string(data)
-		temp, err := strconv.ParseFloat(dataStr, 64)
-		if err != nil {
-			println(err)
-			return
-		}
 
-		select {
-		case s.Agent.stream <- rxgo.Of(temp):
-		default:
-			// do nothing
+		err := s.pubSub.Publish("sensor.temperature", message.NewMessage(watermill.NewUUID(), message.Payload(data)))
+		if err != nil {
+			log.Error(err)
 		}
+		log.Debug("sensor temperature: ", string(data))
 		msg.Ack()
 	})
 	if err != nil {
@@ -60,6 +68,10 @@ func (s *TempSensor) Sub() rxgo.Observable {
 	}
 
 	return s.Agent.obs
+}
+
+func (s *TempSensor) GetMsg() <-chan *message.Message {
+	return s.msg
 }
 
 func (s TempSensor) GetTemp(ctx context.Context) float64 {

@@ -82,6 +82,13 @@ jobs:
             ${{ env.VERSION_TAG }}
             ${{ env.LASTEST_TAG }}
           labels: ${{ steps.meta.outputs.labels }}
+      - name: Update values.yaml
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'kubernetes-manifests/base/deployment.yaml'
+          propertyPath: 'spec.template.spec.containers[0].image'
+          value: $REGISTRY/${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}
+          commitChange: false
   deploy-prod:
     runs-on: ubuntu-latest
     needs: build-push

@@ -25,6 +25,7 @@ func run(lc fx.Lifecycle, app *fiber.App, mqtt *mqtt.MqttClient, temp *stream.Te
 			err := mqtt.Connect(3)
 
 			if err != nil {
+				log.Error().Err(err).Msg("error occurred while connecting to mqtt broker")
 				return err
 			}
 

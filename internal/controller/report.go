@@ -100,4 +100,7 @@ func RegisterReportController(c ReportController) {
 	c.Route.Get("/temp", c.GetTemp)
 	c.Route.Get("/hum", c.GetHum)
 	c.Route.Get("/watch", c.GetSensor)
+	c.Route.Get("/report/temp", c.GetTemp)
+	c.Route.Get("/report/hum", c.GetHum)
+	c.Route.Get("/report/watch", c.GetSensor)
 }

@@ -1,6 +1,7 @@
 package mqtt
 
 import (
+	"crypto/tls"
 	"math/rand"
 	"os"
 	"time"
@@ -20,6 +21,12 @@ func NewMqttClient() *MqttClient {
 	opts.AddBroker(os.Getenv("MQTT_BROKER_URL"))
 	opts.Username = os.Getenv("MQTT_USERNAME")
 	opts.Password = os.Getenv("MQTT_PASSWORD")
+	useSSL := os.Getenv("MQTT_SSL") == "true"
+
+	if useSSL {
+		opts.SetTLSConfig(&tls.Config{InsecureSkipVerify: true})
+	}
+
 	return &MqttClient{
 		opts: opts,
 	}

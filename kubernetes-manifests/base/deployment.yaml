@@ -36,6 +36,11 @@ spec:
                 configMapKeyRef:
                   name: servercopilot-base-config
                   key: MQTT_PASSWORD
+            - name: GITHUB_RELEASE_API
+              valueFrom:
+                configMapKeyRef:
+                  name: servercopilot-base-config
+                  key: GITHUB_RELEASE_API
           resources:
             requests:
               cpu: 100m

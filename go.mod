@@ -1,6 +1,6 @@
 module github.com/zgunz42/servercopilot
 
-go 1.22.0
+go 1.22.2
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.4.3

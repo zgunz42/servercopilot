@@ -9,7 +9,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/reactivex/rxgo/v2 v2.5.0
-	github.com/rs/zerolog v1.31.0
+	github.com/rs/zerolog v1.33.0
 	github.com/urfave/cli/v2 v2.27.1
 	github.com/valyala/fasthttp v1.51.0
 	go.uber.org/fx v1.20.1

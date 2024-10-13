@@ -12,7 +12,7 @@ require (
 	github.com/rs/zerolog v1.31.0
 	github.com/urfave/cli/v2 v2.27.1
 	github.com/valyala/fasthttp v1.51.0
-	go.uber.org/fx v1.20.1
+	go.uber.org/fx v1.23.0
 )
 
 require (
@@ -40,10 +40,10 @@ require (
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/dig v1.17.0 // indirect
+	go.uber.org/dig v1.18.0 // indirect
 	go.uber.org/goleak v1.2.1 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.23.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.17.0 // indirect

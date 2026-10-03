@@ -1,10 +1,10 @@
 module github.com/zgunz42/servercopilot
 
-go 1.22.0
+go 1.23
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.4.3
-	github.com/goccy/go-json v0.10.2
+	github.com/goccy/go-json v0.11.2
 	github.com/gofiber/fiber/v2 v2.52.1
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
